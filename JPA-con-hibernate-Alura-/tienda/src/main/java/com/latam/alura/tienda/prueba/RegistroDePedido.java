@@ -1,6 +1,8 @@
 package com.latam.alura.tienda.prueba;
 
+import java.io.FileNotFoundException;
 import java.math.BigDecimal;
+import java.util.List;
 
 import javax.persistence.EntityManager;
 
@@ -14,19 +16,39 @@ import com.latam.alura.tienda.modelo.ItemsPedido;
 import com.latam.alura.tienda.modelo.Pedido;
 import com.latam.alura.tienda.modelo.Producto;
 import com.latam.alura.tienda.utils.JPAUtils;
+import com.latam.alura.tienda.vo.RelatorioDeVenta;
+
 
 public class RegistroDePedido {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException {
 		registrarProducto();
 		
 		EntityManager em = JPAUtils.getEntityManager();
 		
-	
+		ProductoDao productoDao = new ProductoDao(em);
+		Producto producto = productoDao.consultaPorId(1l);
+
+		ClienteDao clienteDao = new ClienteDao(em);
+		PedidoDao pedidoDao = new PedidoDao(em);
+
+		Cliente cliente = new Cliente("Juan","k6757kjb");
+		Pedido pedido = new Pedido(cliente);
+		pedido.agregarItems(new ItemsPedido(5,producto,pedido));
 		
-	
-	
+		em.getTransaction().begin();
+
+		clienteDao.guardar(cliente);
+		pedidoDao.guardar(pedido);
 		
+		em.getTransaction().commit();
+		
+		BigDecimal valorTotal=pedidoDao.valorTotalVendido();
+		System.out.println("Valor Total: "+ valorTotal);
+		
+		List<RelatorioDeVenta> relatorio = pedidoDao.relatorioDeVentasVO();
+		
+		relatorio.forEach(System.out::println);
 		
 	}
 
@@ -34,42 +56,21 @@ public class RegistroDePedido {
 		Categoria celulares = new Categoria("CELULARES");
 
 		Producto celular = new Producto("Xiaomi Redmi", "Muy bueno", new BigDecimal("800"), celulares);
-		
-		Cliente cliente = new Cliente("Juan", "k5sd78Tx7b");
-	
-		
 
 	    EntityManager em = JPAUtils.getEntityManager();
 	    ProductoDao productoDao = new ProductoDao(em);
         CategoriaDao categoriaDao = new CategoriaDao(em);
-        ProductoDao productodoao = new ProductoDao(em);
-		PedidoDao pedidodao = new PedidoDao(em);
-		ClienteDao clientedao = new ClienteDao(em);
-		
-		
-	
         
 	    em.getTransaction().begin();
-	    	    
-	    Pedido pedido = new Pedido(cliente);
-		Producto producto = productodoao.consultaPorId(1l);
-		pedido.agregarItems(new ItemsPedido(5, producto, pedido));
 	    
 	    categoriaDao.guardar(celulares);
 	    productoDao.guardar(celular);	
-		clientedao.guardar(cliente);
-		pedidodao.guardar(pedido);
 	    
 	    em.getTransaction().commit();
 	    em.close();
 	}
 
 }
-
-
-
-
-
 
 
 

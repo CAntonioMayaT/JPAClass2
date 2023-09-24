@@ -1,11 +1,18 @@
 package com.latam.alura.tienda.dao;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Selection;
 
-import com.latam.alura.tienda.modelo.Categoria;
+import com.latam.alura.tienda.modelo.Cliente;
 import com.latam.alura.tienda.modelo.Producto;
 
 public class ProductoDao {
@@ -40,7 +47,7 @@ public class ProductoDao {
 	}
 	
 	public List<Producto> consultaPorNombre(String nombre){
-		String jpql =" SELECT P FROM Producto AS P WHERE P.nombre=:nombre ";
+		String jpql ="SELECT P FROM Producto AS P WHERE P.nombre=:nombre";
 		return em.createQuery(jpql,Producto.class).setParameter("nombre", nombre).getResultList();
 	}
 	
@@ -48,10 +55,60 @@ public class ProductoDao {
 		String jpql="SELECT p FROM Producto AS p WHERE p.categoria.nombre=:nombre";
 		return em.createQuery(jpql,Producto.class).setParameter("nombre", nombre).getResultList();
 	}
-	 
-	public BigDecimal consultarPrecioPorNombreDeProducto(String nombre) {
-		String jpql="SELECT P.precio FROM Producto AS P WHERE P.nombre=:nombre";
-		return em.createQuery(jpql,BigDecimal.class).setParameter("nombre", nombre).getSingleResult();
-	}
 
+	public BigDecimal consultarPrecioPorNombreDeProducto(String nombre) {
+		return em.createNamedQuery("Producto.consultarPrecioPorNombre",BigDecimal.class).setParameter("nombre", nombre).getSingleResult();
+	}
+	
+	
+	public List<Producto> consultarPorParametros(String nombre, BigDecimal precio,LocalDate fecha){
+		StringBuilder jpql=new StringBuilder("SELECT p FROM Producto p WHERE 1=1 ");
+		
+		if(nombre!=null && !nombre.trim().isEmpty()) {
+			jpql.append("AND p.nombre=:nombre ");
+		}
+		if(precio!=null && !precio.equals(new BigDecimal(0))) {
+			jpql.append("AND p.precio=:precio ");
+		}
+		if(fecha!=null) {
+			jpql.append("AND p.fechaDeRegistro=:fecha");
+		}
+		TypedQuery<Producto> query = em.createQuery(jpql.toString(),Producto.class);
+		if(nombre!=null && !nombre.trim().isEmpty()) {
+			query.setParameter("nombre", nombre);
+		}
+		if(precio!=null && !precio.equals(new BigDecimal(0))) {
+			query.setParameter("precio", precio);
+		}
+		if(fecha!=null) {
+			query.setParameter("fechaDeRegistro", fecha);
+		}
+
+		return query.getResultList();		
+	}
+	
+
+	public List<Producto> consultarPorParametrosConAPICriteria(String nombre, BigDecimal precio,LocalDate fecha){
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<Producto> query = builder.createQuery(Producto.class);
+		Root<Producto> from = query.from(Producto.class);
+		
+		
+		Predicate filtro = builder.and();
+		if(nombre!=null && !nombre.trim().isEmpty()) {
+			filtro=builder.and(filtro,builder.equal(from.get("nombre"), nombre));
+		}
+		if(precio!=null && !precio.equals(new BigDecimal(0))) {
+			filtro=builder.and(filtro,builder.equal(from.get("precio"), precio));
+		}
+		if(fecha!=null) {
+			filtro=builder.and(filtro,builder.equal(from.get("fechaDeRegistro"), fecha));
+		}
+		
+		query=query.where(filtro);
+		return em.createQuery(query).getResultList();
+
+	
+	}
+	
 }

@@ -43,14 +43,6 @@ public class ClienteDao {
 		return em.createQuery(jpql,Cliente.class).setParameter("nombre", nombre).getResultList();
 	}
 	
-	public List<Cliente> consultaPorNombreDeCategoria(String nombre){
-		String jpql="SELECT p FROM Cliente AS p WHERE p.categoria.nombre=:nombre";
-		return em.createQuery(jpql,Cliente.class).setParameter("nombre", nombre).getResultList();
-	}
-	 
-	public BigDecimal consultarPrecioPorNombreDeCliente(String nombre) {
-		String jpql="SELECT P.precio FROM Cliente AS P WHERE P.nombre=:nombre";
-		return em.createQuery(jpql,BigDecimal.class).setParameter("nombre", nombre).getSingleResult();
-	}
+	
 
 }

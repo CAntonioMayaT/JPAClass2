@@ -3,47 +3,45 @@ package com.latam.alura.tienda.modelo;
 import java.math.BigDecimal;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.ManyToAny;
-
 @Entity
-@Table(name="items_Pedido")
+@Table(name="items_pedido")
 public class ItemsPedido {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;
 	
-	private int cantidad; 
+	private int cantidad;
 	private BigDecimal precioUnitario;
 	
-	@ManyToOne
+	@ManyToOne(fetch=FetchType.LAZY)
 	private Producto producto;
 	
-	@ManyToOne
+	@ManyToOne(fetch=FetchType.LAZY)
 	private Pedido pedido;
 
-
 	public ItemsPedido() {
-		super();
+		
 	}
 
 	public ItemsPedido(int cantidad, Producto producto, Pedido pedido) {
-		super();
 		this.cantidad = cantidad;
 		this.producto = producto;
 		this.pedido = pedido;
-		this.precioUnitario = producto.getPrecio();
+		this.precioUnitario=producto.getPrecio();
 	}
 
 	public Long getId() {
 		return id;
 	}
+
 
 	public int getCantidad() {
 		return cantidad;
@@ -76,9 +74,10 @@ public class ItemsPedido {
 	public void setPedido(Pedido pedido) {
 		this.pedido = pedido;
 	}
-	
-	public BigDecimal getValor () {
+
+	public BigDecimal getValor() {
 		return this.precioUnitario.multiply(new BigDecimal(this.cantidad));
 	}
-	
+
+
 }

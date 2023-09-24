@@ -1,5 +1,6 @@
 package com.latam.alura.tienda.modelo;
 
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -10,29 +11,20 @@ import javax.persistence.Table;
 @Table(name="categorias")
 public class Categoria {
 	
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private Long id;
-	private String nombre;
+	@EmbeddedId
+	private CategoriaID categoriaid;
 	
 	public Categoria() {}
 
-	public Categoria(String nombre) {
-		this.nombre = nombre;
+	public Categoria(String contraseña) {
+		this.categoriaid = new CategoriaID(contraseña, "456");
 	}
 	
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
 	public String getNombre() {
-		return nombre;
+		return categoriaid.getNombre();
 	}
 	public void setNombre(String nombre) {
-		this.nombre = nombre;
+		this.categoriaid.setNombre(nombre);;
 	}
-	
 
 }
